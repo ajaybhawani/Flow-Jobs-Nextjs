@@ -26,9 +26,11 @@ interface jobfilterSlidebarProps {
   defaultValues: jobFilterValues;
 }
 
+
 export default async function jobfilterSlidebar({
   defaultValues,
 }: jobfilterSlidebarProps) {
+  console.log("defaultValues", defaultValues);
   const distinctLocations = (await prisma.job
     .findMany({
       where: { approved: true },
@@ -41,7 +43,7 @@ export default async function jobfilterSlidebar({
 
   return (
     <aside className="md:w-[260px sticky top-0 h-fit rounded-lg border bg-background p-4">
-      <form action={filterJobs}>
+      <form action={filterJobs} key={JSON.stringify(defaultValues)}>
         <div className="space-y-4">
           <div className="mb-2 flex flex-col gap-2">
             <Label htmlFor="q">Search</Label>
