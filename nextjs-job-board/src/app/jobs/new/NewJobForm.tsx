@@ -21,6 +21,8 @@ import { Label } from "@radix-ui/react-label";
 import RichTextEditor from "@/components/RichTextEditor";
 import { draftToMarkdown } from "markdown-draft-js";
 import LoadingButton from "@/components/LoadingButton";
+import { toast } from "react-toastify";
+import { createJobPosting } from "./action";
 
 export default function NewJobForm() {
   const form = useForm<CreateJobValues>({
@@ -38,7 +40,19 @@ export default function NewJobForm() {
   } = form;
 
   async function onSubmit(values: CreateJobValues) {
-    alert(JSON.stringify(values, null, 2));
+    const formData = new FormData();
+
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        formData.append(key, value);
+      }
+    });
+
+    try {
+      await createJobPosting(formData);
+    } catch (error) {
+      toast.error("Something went wrong, please try again.");
+    }
   }
 
   return (
@@ -151,7 +165,7 @@ export default function NewJobForm() {
                       >
                         <option value="" hidden>
                           Select an option
-                        </option> 
+                        </option>
                         {locationTypes.map((locationType) => (
                           <option key={locationType} value={locationType}>
                             {locationType}

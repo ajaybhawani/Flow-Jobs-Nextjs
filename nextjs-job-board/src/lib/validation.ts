@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { jobTypes, locationTypes } from "./job-types";
 
-const requiredString = z.string().min(1, "required");
-const numaricRequiredString = requiredString.regex(/^\d+$/, "Must be a number");
+const requiredString = z.string().min(1, "Required");
+const numericRequiredString = requiredString.regex(/^\d+$/, "Must be a number");
+
 const companyLogoSchema = z
   .custom<File | undefined>()
   .refine(
     (file) => !file || (file instanceof File && file.type.startsWith("image/")),
     "Must be an image file",
   )
-  .refine(
-    (file) => !file || file.size < 1024 * 1024 * 2,
-    "File must be less than 2MB",
-  );
+  .refine((file) => {
+    return !file || file.size < 1024 * 1024 * 2;
+  }, "File must be less than 2MB");
 
 const applicationSchema = z
   .object({
@@ -34,7 +34,7 @@ const locationSchema = z
   })
   .refine(
     (data) =>
-      !data.locationType || data.locationType === "Remote" || data.locationType,
+      !data.locationType || data.locationType === "Remote" || data.location,
     {
       message: "Location is required for on-site jobs",
       path: ["location"],
@@ -51,9 +51,9 @@ export const createJobSchema = z
     companyName: requiredString.max(100),
     companyLogo: companyLogoSchema,
     description: z.string().max(5000).optional(),
-    salary: numaricRequiredString.max(
+    salary: numericRequiredString.max(
       9,
-      "Number can't be longer then 9 digits",
+      "Number can't be longer than 9 digits",
     ),
   })
   .and(applicationSchema)
@@ -68,4 +68,4 @@ export const jobFilterSchema = z.object({
   remote: z.coerce.boolean().optional(),
 });
 
-export type jobFilterValues = z.infer<typeof jobFilterSchema>;
+export type JobFilterValues = z.infer<typeof jobFilterSchema>;
